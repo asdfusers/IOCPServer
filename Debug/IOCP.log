@@ -1,4 +1,9 @@
-﻿  WorkerThread.cpp
-c:\users\gc\documents\visual studio 2015\projects\iocp\workerthread.cpp(16): warning C4101: 'overlapped': unreferenced local variable
+﻿  AcceptThread.cpp
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  WorkerThread.cpp
+  Connection.cpp
+  IOCPserver.cpp
+  IOCP.cpp
   IOCP.vcxproj -> C:\Users\GC\Documents\Visual Studio 2015\Projects\IOCP\Debug\IOCP.exe
   IOCP.vcxproj -> C:\Users\GC\Documents\Visual Studio 2015\Projects\IOCP\Debug\IOCP.pdb (Full PDB)

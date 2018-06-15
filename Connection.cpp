@@ -2,8 +2,9 @@
 #include "Connection.h"
 
 
-CConnection::CConnection() : m_socket(INVALID_SOCKET), recvBytes(0), sendBytes(0)
+CConnection::CConnection() : m_socket(INVALID_SOCKET), recvBytes(0), sendBytes(0), iLevel(0), eStatus(Connect), iRoomNum(0)
 {
+	buffer[PACKETBUFFERSIZE] = { 0, };
 }
 
 

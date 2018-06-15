@@ -11,6 +11,7 @@ int main()
 	while (true)
 	{
 		server.Update();
+		Sleep(1);
 	}
 	server.UnInit();
     return 0;

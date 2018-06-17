@@ -20,17 +20,17 @@ void CUserManager::releaseInst()
 	m_pInst = 0;
 }
 
-void CUserManager::insertUser(CConnection& client)
+void CUserManager::insertUser(Socket* client)
 {
-	clientPool.insert(std::pair<SOCKET, CConnection>(client.getSocket() , client));
+	clientPool.insert(std::pair<SOCKET, Socket*>(client->getSocket() , client));
 }
 
-void CUserManager::deleteUser(CConnection client)
+void CUserManager::deleteUser(Socket client)
 {
 	clientPool.erase(client.getSocket());
 }
 
-std::map<SOCKET, CConnection>::iterator CUserManager::findUser(SOCKET socket)
+std::map<SOCKET, Socket*>::iterator CUserManager::findUser(SOCKET socket)
 {
 	itr = clientPool.begin();
 	while (itr != clientPool.end())

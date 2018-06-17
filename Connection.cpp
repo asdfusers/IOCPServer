@@ -2,9 +2,9 @@
 #include "Connection.h"
 
 
-CConnection::CConnection() : m_socket(INVALID_SOCKET), recvBytes(0), sendBytes(0), iLevel(0), eStatus(Connect), iRoomNum(0)
+CConnection::CConnection() 
 {
-	buffer[PACKETBUFFERSIZE] = { 0, };
+	
 }
 
 
@@ -13,9 +13,23 @@ CConnection::~CConnection()
 	
 }
 
-void CConnection::close()
+void CConnection::insertList(Socket* _socket)
 {
-	if (m_socket != NULL)
-		closesocket(m_socket);
-	WSACleanup();
+	socketList.push_back(_socket);
 }
+
+void CConnection::removeList(Socket* _socket)
+{
+	itr = socketList.begin();
+	while (itr != socketList.end())
+	{
+		if ((*itr)->getSocket() == _socket->getSocket())
+		{
+			itr = socketList.erase(itr++);
+			break;
+		}
+		else
+			itr++;
+	}
+}
+

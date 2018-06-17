@@ -13,16 +13,16 @@ public:
 		return m_pInst;
 	}
 	static void releaseInst();
-	virtual void insertUserPool(CConnection User);
-	virtual void deleteUserPool(CConnection User);
-	virtual CConnection findUserPool(SOCKET socket);
+	virtual void insertUserPool(Socket* User);
+	virtual void deleteUserPool(Socket* User);
+	virtual Socket* findUserPool(SOCKET socket);
 public:
 	CLobby();
 	~CLobby();
 
 private:
 	static CLobby*  m_pInst;
-	std::map<SOCKET, CConnection> LobbyClientPool;
+	std::map<SOCKET, Socket*> LobbyClientPool;
 
 };
 

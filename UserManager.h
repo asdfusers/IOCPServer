@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "Connection.h"
+#include "Socket.h"
 
 class CUserManager
 {
@@ -13,13 +13,13 @@ private:
 
 
 public:
-	void insertUser(CConnection& client);
-	void deleteUser(CConnection client);
-	std::map<SOCKET, CConnection>::iterator findUser(SOCKET socket);
+	void insertUser(Socket* client);
+	void deleteUser(Socket client);
+	std::map<SOCKET, Socket*>::iterator findUser(SOCKET socket);
 
 public:
-	std::map<SOCKET, CConnection> clientPool;
-	std::map<SOCKET, CConnection>::iterator itr;
+	std::map<SOCKET, Socket*> clientPool;
+	std::map<SOCKET, Socket*>::iterator itr;
 };
 
 

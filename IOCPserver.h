@@ -1,7 +1,8 @@
 #pragma once
 #include "AcceptThread.h"
 #include "WorkerThread.h"
-
+#include "Socket.h"
+#include "Connection.h"
 class CIOCPserver
 {
 public:
@@ -30,9 +31,11 @@ public:
 	bool playerPositionSetting(std::string cInputKey, CPosition pos, CPacket & packet);
 	void DeleteUserPool(SOCKET socket);
 	void ChoiceLobbyOption(int iNum, SOCKET socket);
-	std::string ViewUserInformation(CConnection User);
-	std::string VIewUserStatuInformation(CConnection User);
+	std::string ViewUserInformation(Socket* User);
+	std::string VIewUserStatuInformation(Socket* User);
 
+
+	void CopyConnection();
 private:
 	int retval;
 	SOCKET m_ListenSocket;
@@ -42,6 +45,7 @@ private:
 	CS::CriticalSection cs;
 
 private:
+	CConnection SocketConnection;
 	CAcceptThread acceptThread;
 	WorkerThread workerThread[WorkerThreadCount];
 };

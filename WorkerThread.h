@@ -17,9 +17,10 @@ public:
 	CMessageQue& getRecvQue() { return recvQue; }
 	
 	void SetConnectionList(std::list<CConnection> _Connection) { ConnectionList = _Connection;}
-	void onReceive(DWORD bytesTransferred, CConnection* connection);
+	void onReceive(DWORD bytesTransferred, Socket* socket);
 
 	CS::CriticalSection cs;
+
 private:
 	HANDLE m_hcp;
 	CMessageQue recvQue;

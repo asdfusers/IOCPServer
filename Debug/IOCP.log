@@ -1,9 +1,19 @@
-﻿  AcceptThread.cpp
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  WorkerThread.cpp
-  Connection.cpp
+﻿  WorkerThread.cpp
+c:\users\danawacomputer\documents\github\iocpserver\workerthread.cpp(63): warning C4101: 'buffer' :참조되지 않은 지역 변수입니다.
+  코드를 생성하고 있습니다...
+  컴파일하고 있습니다...
   IOCPserver.cpp
+  코드를 생성하고 있습니다...
+c:\users\danawacomputer\documents\github\iocpserver\iocpserver.cpp(501): warning C4715: 'CIOCPserver::VIewUserStatuInformation': 모든 제어 경로에서 값을 반환하지는 않습니다.
+  건너뛰고 있습니다... (관련된 변경 내용 없음)
+  UserManager.cpp
+  Stage.cpp
+  RoomManager.cpp
+  Room.cpp
+  Lobby.cpp
   IOCP.cpp
-  IOCP.vcxproj -> C:\Users\GC\Documents\Visual Studio 2015\Projects\IOCP\Debug\IOCP.exe
-  IOCP.vcxproj -> C:\Users\GC\Documents\Visual Studio 2015\Projects\IOCP\Debug\IOCP.pdb (Full PDB)
+  GameRoom.cpp
+  Connection.cpp
+  AcceptThread.cpp
+  IOCP.vcxproj -> C:\Users\danawacomputer\Documents\GitHub\IOCPServer\Debug\IOCP.exe
+  IOCP.vcxproj -> C:\Users\danawacomputer\Documents\GitHub\IOCPServer\Debug\IOCP.pdb (Full PDB)

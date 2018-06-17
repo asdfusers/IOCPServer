@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "WorkerThread.h"
-
+#include "Socket.h"
 WorkerThread::WorkerThread()
 {
 }
@@ -14,67 +14,57 @@ void WorkerThread::threadMain()
 {
 	LPOVERLAPPED overlapped;
 	DWORD byteTransfer, completionKey=0;
-	SOCKET sock;
-	CConnection* connection;
-	bool retval;
-	
-
+	Socket* Socket;
+	int retval;
+	DWORD flags = 0;
 
 	while (true)
 	{
 
-		retval = GetQueuedCompletionStatus(m_hcp, &byteTransfer, (LPDWORD)&sock, (LPOVERLAPPED*)&connection, INFINITE);
+		retval = GetQueuedCompletionStatus(m_hcp, &byteTransfer, (LPDWORD)&Socket, (LPOVERLAPPED*)&overlapped, INFINITE);
 		DWORD dwError = GetLastError();
 
-		if (retval)
+		if (retval == 0 || byteTransfer == 0)
 		{
-
-			XTrace(L"%d", connection->m_socket);
-			connection->recvBytes = byteTransfer;
-			onReceive(byteTransfer, connection);
-
-			ZeroMemory(&connection->overlapped, sizeof(OVERLAPPED));
-			DWORD flags = 0;
-
-			WSARecv(connection->getSocket(), &connection->wsaBuf, 1, &byteTransfer, &flags, &(connection->getOverlapped()), NULL);
+			if (retval == 0)
+			{
+				DWORD temp1, temp2;
+				WSAGetOverlappedResult(Socket->getSocket(), &Socket->overlapped, &temp1, FALSE, &temp2);
+				std::cout << "WSAGetoverlappedResulT()" << std::endl;
+			}
+			closesocket(Socket->getSocket());
+			delete Socket;
+			Socket = NULL;
+			continue;
 		}
-		//else
-		//{
-		//	if (connection->getOverlapped() != NULL)
-		//	{
-		//		//실패완료 처리
-		//	}
-		//	else
-		//	{
-		//		if (dwError == WAIT_TIMEOUT)
-		//		{
-		//		}
-		//		else
-		//	}
-		//}
 
-
-
-		}
+		onReceive(byteTransfer, Socket);
+		ZeroMemory(&Socket->overlapped, sizeof(Socket->overlapped));
+		Socket->recvBytes = Socket->sendBytes = 0;
+		Socket->wsaBuf.buf = Socket->buffer;
+		WSARecv(Socket->getSocket(), &Socket->wsaBuf, 1, &byteTransfer, &flags, &(Socket->overlapped), NULL);
+	
 
 }
 
-void WorkerThread::onReceive(DWORD bytesTransferred, CConnection* connection)
+}
+
+void WorkerThread::onReceive(DWORD bytesTransferred, Socket* socket)
 {
 	CPacket receivedPacket;
 
-	connection->SetRecvBytes(bytesTransferred);
-	while (connection->getRecvBytes() > 0)
+	socket->recvBytes = bytesTransferred;
+	while (socket->recvBytes > 0)
 	{
-		receivedPacket.copyToBuffer(connection->wsaBuf.buf, connection->getRecvBytes());
+		receivedPacket.copyToBuffer(socket->wsaBuf.buf, socket->recvBytes);
 
-		if (receivedPacket.isValidPacket() == true && connection->getRecvBytes() >= (int)receivedPacket.getPacketSize())
+		if (receivedPacket.isValidPacket() == true && socket->recvBytes >= (int)receivedPacket.getPacketSize())
 		{
 			char buffer[PACKETBUFFERSIZE];
 			CCriticalSectionLock cs(cs);
-			receivedPacket.SetSocketNumber(connection->getSocket());
-			recvQue.messageQue.push(receivedPacket);
-			connection->SetRecvBytes(connection->getRecvBytes() - receivedPacket.getPacketSize());
+			receivedPacket.SetSocketNumber(socket->getSocket());
+			socket->getRecvQue().messageQue.push(receivedPacket);
+			socket->recvBytes -= receivedPacket.getPacketSize();
 		}
 		else
 			break;

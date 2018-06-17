@@ -13,19 +13,19 @@ void CLobby::releaseInst()
 }
 
 
-void CLobby::insertUserPool(CConnection User)
+void CLobby::insertUserPool(Socket* User)
 {
-	LobbyClientPool.insert(std::pair<SOCKET, CConnection>(User.getSocket(), User));
+	LobbyClientPool.insert(std::pair<SOCKET, Socket*>(User->getSocket(), User));
 }
 
-void CLobby::deleteUserPool(CConnection User)
+void CLobby::deleteUserPool(Socket* User)
 {
-	LobbyClientPool.erase(User.getSocket());
+	LobbyClientPool.erase(User->getSocket());
 }
 
-CConnection CLobby::findUserPool(SOCKET socket)
+Socket* CLobby::findUserPool(SOCKET socket)
 {
-	std::map<SOCKET, CConnection>::iterator itr;
+	std::map<SOCKET, Socket*>::iterator itr;
 	itr = LobbyClientPool.begin();
 
 	while (itr != LobbyClientPool.end())

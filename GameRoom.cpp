@@ -12,20 +12,20 @@ CGameRoom::~CGameRoom()
 {
 }
 
-void CGameRoom::insertUserPool(CConnection& User)
+void CGameRoom::insertUserPool(Socket* User)
 {
-	User.setRoomNum(iRoomNumber);
-	PlayerPool.insert(std::pair<SOCKET, CConnection&>(User.getSocket(), User));
+	User->iRoomNum = iRoomNumber;
+	PlayerPool.insert(std::pair<SOCKET, Socket*>(User->getSocket(), User));
 }
 
-void CGameRoom::deleteUserPool(CConnection User)
+void CGameRoom::deleteUserPool(Socket* User)
 {
-	PlayerPool.erase(User.getSocket());
+	PlayerPool.erase(User->getSocket());
 }
 
-CConnection CGameRoom::findUserPool(SOCKET socket)
+Socket* CGameRoom::findUserPool(SOCKET socket)
 {
-	std::map<SOCKET, CConnection&>::iterator itr;
+	std::map<SOCKET, Socket*>::iterator itr;
 	itr = PlayerPool.begin();
 
 	while (itr != PlayerPool.end())

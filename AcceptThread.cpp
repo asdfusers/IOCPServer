@@ -2,7 +2,7 @@
 #include "AcceptThread.h"
 #include "Packet.h"
 #include "UserManager.h"
-
+#include "Socket.h"
 CAcceptThread::CAcceptThread()
 {
 }
@@ -14,7 +14,7 @@ CAcceptThread::~CAcceptThread()
 
 void CAcceptThread::threadMain()
 {
-	SOCKET Connection;
+	SOCKET connect;
 	SOCKADDR_IN sockAddr;
 	int addrLen = sizeof(sockAddr);
 	int retval = 0;
@@ -25,9 +25,9 @@ void CAcceptThread::threadMain()
 	{
 	
 		
-		Connection = WSAAccept(m_ListenSocket, (SOCKADDR*)&sockAddr, &addrLen, NULL, 0);
+		connect = WSAAccept(m_ListenSocket, (SOCKADDR*)&sockAddr, &addrLen, NULL, 0);
 		
-		if (Connection == SOCKET_ERROR)
+		if (connect == SOCKET_ERROR)
 		{
 			if (WSAGetLastError() != WSAEWOULDBLOCK)
 				std::cout << "accept()" << std::endl;
@@ -36,49 +36,42 @@ void CAcceptThread::threadMain()
 		
 		std::cout << "[서버] 클라이언트 접속 : IP[ " << inet_ntoa(sockAddr.sin_addr) << " ], \t 포트번호[ " << ntohs(sockAddr.sin_port) << " ]" << std::endl;
 
+		Socket* SockettInfo = new Socket;
+		ZeroMemory(&SockettInfo->overlapped, sizeof(SockettInfo->overlapped));
+		SockettInfo->recvBytes = SockettInfo->sendBytes = 0;
+		SockettInfo->wsaBuf.buf = SockettInfo->buffer;
+		SockettInfo->wsaBuf.len = PACKETBUFFERSIZE;
+		SockettInfo->m_socket = connect;
+		SockettInfo->flags = READ;
 
-		m_hcp = CreateIoCompletionPort((HANDLE)Connection, m_hcp, Connection, 0);
+		CCriticalSectionLock cs(cs);
+		Connection.insertList(SockettInfo);
 
-		CConnection socketInfo;
-		ZeroMemory(&socketInfo.overlapped, sizeof(socketInfo.overlapped));
-		socketInfo.recvBytes = socketInfo.sendBytes = 0;
-		socketInfo.wsaBuf.buf = socketInfo.buffer;
-		socketInfo.wsaBuf.len = PACKETBUFFERSIZE;
-		socketInfo.m_socket = Connection;
+		CUserManager::getInst()->insertUser(SockettInfo);
 
-		XTrace(L"%d", socketInfo);
+		m_hcp = CreateIoCompletionPort((HANDLE)connect, m_hcp,(DWORD)SockettInfo, 0);
 
 		flags = 0;
 		
-		retval = WSARecv(socketInfo.m_socket, &socketInfo.wsaBuf, 1, &receivedBytes,
-			&flags, &socketInfo.overlapped, NULL);
-	
-
-
-		CCriticalSectionLock cs(cs);
-		m_SocketList.push_back(socketInfo);
-		CUserManager::getInst()->insertUser(socketInfo);
-
-		CPacket sendPacket(P_CONNECTIONSUCCESS_ACK);
-		sendPacket << L"Welcome To Network GameLobby \nPlease Input Your ID and Password\n";
-		sendMessage(sendPacket, socketInfo.getSocket());
+		retval = WSARecv(SockettInfo->m_socket, &SockettInfo->wsaBuf, 1, &receivedBytes,
+			&flags, (LPWSAOVERLAPPED)&SockettInfo->overlapped, NULL);
 
 		if (retval == SOCKET_ERROR)
 		{
 			if (WSAGetLastError() != ERROR_IO_PENDING)
 			{
-				printf("%d \n ", WSAGetLastError());
 				return;
 			}
 			continue;
 		}
-		
-		
-
-		
 
 
-	
+
+		CPacket sendPacket(P_CONNECTIONSUCCESS_ACK);
+		sendPacket << L"Welcome To Network GameLobby \nPlease Input Your ID and Password\n";
+		sendMessage(sendPacket, SockettInfo->m_socket);
+
+
 	}
 }
 

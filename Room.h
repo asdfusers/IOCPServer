@@ -9,9 +9,9 @@ public:
 
 
 public:
-	virtual void insertUserPool(CConnection User);
-	virtual void deleteUserPool(CConnection User) = 0;
-	virtual CConnection findUserPool(SOCKET socket) = 0;
+	virtual void insertUserPool(Socket* User);
+	virtual void deleteUserPool(Socket* User) = 0;
+	virtual Socket* findUserPool(SOCKET socket) = 0;
 
 public:
 

@@ -11,9 +11,9 @@ public:
 	CGameRoom();
 	~CGameRoom();
 
-	virtual void insertUserPool(CConnection& User);
-	virtual void deleteUserPool(CConnection User);
-	virtual CConnection findUserPool(SOCKET socket);
+	virtual void insertUserPool(Socket* User);
+	virtual void deleteUserPool(Socket* User);
+	virtual Socket* findUserPool(SOCKET socket);
 
 	void SetRoomNumber(int index) { iRoomNumber = index; }
 	CStage* getStage() { return m_Stage; }
@@ -22,14 +22,14 @@ public:
 	void setReadyCnt() {
 		iReadyCnt++;
 	}
-	std::map<SOCKET, CConnection&> getPool() { return PlayerPool; }
+	std::map<SOCKET, Socket*> getPool() { return PlayerPool; }
 
 	void GameStart();
 
 private:
 	int iRoomNumber;
 	int iReadyCnt = 0;
-	std::map<SOCKET, CConnection&> PlayerPool;
+	std::map<SOCKET, Socket*> PlayerPool;
 	CStage* m_Stage;
 };
 

@@ -15,12 +15,12 @@ void CLobby::releaseInst()
 
 void CLobby::insertUserPool(Socket* User)
 {
-	LobbyClientPool.insert(std::pair<SOCKET, Socket*>(User->getSocket(), User));
+	LobbyClientPool.insert(std::pair<SOCKET, Socket*>(User->m_socket, User));
 }
 
 void CLobby::deleteUserPool(Socket* User)
 {
-	LobbyClientPool.erase(User->getSocket());
+	LobbyClientPool.erase(User->m_socket);
 }
 
 Socket* CLobby::findUserPool(SOCKET socket)

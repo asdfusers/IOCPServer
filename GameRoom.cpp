@@ -15,12 +15,12 @@ CGameRoom::~CGameRoom()
 void CGameRoom::insertUserPool(Socket* User)
 {
 	User->iRoomNum = iRoomNumber;
-	PlayerPool.insert(std::pair<SOCKET, Socket*>(User->getSocket(), User));
+	PlayerPool.insert(std::pair<SOCKET, Socket*>(User->m_socket, User));
 }
 
 void CGameRoom::deleteUserPool(Socket* User)
 {
-	PlayerPool.erase(User->getSocket());
+	PlayerPool.erase(User->m_socket);
 }
 
 Socket* CGameRoom::findUserPool(SOCKET socket)

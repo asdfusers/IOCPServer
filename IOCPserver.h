@@ -45,7 +45,7 @@ private:
 	CS::CriticalSection cs;
 
 private:
-	CConnection SocketConnection;
+	std::list<Socket*> socketList;
 	CAcceptThread acceptThread;
 	WorkerThread workerThread[WorkerThreadCount];
 };

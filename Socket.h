@@ -9,36 +9,34 @@ public:
 	~Socket();
 
 public:
-	SOCKET getSocket() { return m_socket; }
-	char* getID() { return ID; }
-	int getLevel() { return iLevel; }
-	int getRoomidx() { return iRoomNum; }
-	int getPlayerTeam() { return iTeam; }
-	OVERLAPPED getOverlapped() { return overlapped; }
-	Status getStatus() { return eStatus; }
+	CMessageQue& getRecvQue() { return recvQue; }
+	CMessageQue& getSendQue() { return sendQue; }
 
+	void closeConnection();
+	void onReceive(DWORD bytesTransferred);
+
+private:
+	CMessageQue recvQue;
+	CMessageQue sendQue;
+
+
+public:
 	WSABUF wsaBuf;
 	char buffer[PACKETBUFFERSIZE + 1];
 
 	SOCKET m_socket;
 	OVERLAPPED overlapped;
-	DWORD flags;
+	IO_OPERATION ioType;
 	int recvBytes;
 	int sendBytes;
-
-
-	CMessageQue getRecvQue() { return recvQue; }
-	CMessageQue getSendQue() { return sendQue; }
-private:
-	CMessageQue recvQue;
-	CMessageQue sendQue;
-
-public:
 
 	char ID[10];
 	int iLevel;
 	int iRoomNum;
 	int iTeam;
 	Status eStatus;
+	
+	CS::CriticalSection Cric;
+
 };
 

@@ -23,7 +23,7 @@ void CConnection::removeList(Socket* _socket)
 	itr = socketList.begin();
 	while (itr != socketList.end())
 	{
-		if ((*itr)->getSocket() == _socket->getSocket())
+		if ((*itr)->m_socket == _socket->m_socket)
 		{
 			itr = socketList.erase(itr++);
 			break;

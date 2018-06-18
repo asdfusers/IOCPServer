@@ -9,6 +9,7 @@ public:
 	~CAcceptThread();
 
 	virtual void threadMain();
+	void CloseClient(Socket *socket);
 	bool sendMessage(CPacket& packet, SOCKET SOCK);
 
 	void SetListenSocket(SOCKET _socket) { m_ListenSocket = _socket; }

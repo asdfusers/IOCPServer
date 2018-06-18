@@ -16,8 +16,6 @@ public:
 	void insertList(Socket* _socket);
 	void removeList(Socket* _socket);
 
-
-
 private:
 	std::list<Socket*> socketList;
 	std::list<Socket*>::iterator itr;

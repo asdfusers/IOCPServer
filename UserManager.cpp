@@ -22,12 +22,12 @@ void CUserManager::releaseInst()
 
 void CUserManager::insertUser(Socket* client)
 {
-	clientPool.insert(std::pair<SOCKET, Socket*>(client->getSocket() , client));
+	clientPool.insert(std::pair<SOCKET, Socket*>(client->m_socket , client));
 }
 
 void CUserManager::deleteUser(Socket client)
 {
-	clientPool.erase(client.getSocket());
+	clientPool.erase(client.m_socket);
 }
 
 std::map<SOCKET, Socket*>::iterator CUserManager::findUser(SOCKET socket)

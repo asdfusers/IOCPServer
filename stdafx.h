@@ -25,11 +25,9 @@ using namespace std;
 
 #define WorkerThreadCount 8
 
-enum IO_TYPE
-{
+typedef enum {
 	IO_READ,
 	IO_WRITE
-};
-
+}IO_OPERATION;
 
 // TODO: reference additional headers your program requires here

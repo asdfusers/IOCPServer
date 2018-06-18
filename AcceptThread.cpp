@@ -2,6 +2,7 @@
 #include "AcceptThread.h"
 #include "Packet.h"
 #include "UserManager.h"
+#include "ConnectionManager.h"
 #include "Socket.h"
 CAcceptThread::CAcceptThread()
 {
@@ -34,6 +35,8 @@ void CAcceptThread::threadMain()
 		
 		std::cout << "[서버] 클라이언트 접속 : IP[ " << inet_ntoa(sockAddr.sin_addr) << " ], \t 포트번호[ " << ntohs(sockAddr.sin_port) << " ]" << std::endl;
 
+		CConnection* connection = new CConnection;
+		CConnectionManager::getInst()->insertConnection(connection);
 		Socket* SockettInfo = new Socket;
 		if (SockettInfo == NULL)
 		{
@@ -47,6 +50,8 @@ void CAcceptThread::threadMain()
 		SockettInfo->m_socket = connect;
 		SockettInfo->ioType = IO_READ;
 	
+		connection->m_Socket = SockettInfo;
+		
 		m_hcp = CreateIoCompletionPort((HANDLE)connect, m_hcp,(DWORD)SockettInfo, 0);
 
 
@@ -61,10 +66,9 @@ void CAcceptThread::threadMain()
 		
 		{
 			CCriticalSectionLock cs(cs);
-			Connection.insertList(SockettInfo);
+			CUserManager::getInst()->insertUser(SockettInfo);	
 		}
 		
-		CUserManager::getInst()->insertUser(SockettInfo);
 
 		CPacket sendPacket(P_CONNECTIONSUCCESS_ACK);
 		sendPacket << L"Welcome To Network GameLobby \nPlease Input Your ID and Password\n";

@@ -23,5 +23,6 @@ private:
 	HANDLE m_hcp;
 	CMessageQue recvQue;
 	std::list<CConnection> ConnectionList;
+	CS::CriticalSection cs;
 };
 

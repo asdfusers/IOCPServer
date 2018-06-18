@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "WorkerThread.h"
 #include "Socket.h"
+#include "UserManager.h"
+#include "ConnectionManager.h"
 WorkerThread::WorkerThread()
 {
 }
@@ -32,9 +34,15 @@ void WorkerThread::threadMain()
 				WSAGetOverlappedResult(Socket->m_socket, &Socket->overlapped, &temp1, FALSE, &temp2);
 				std::cout << "WSAGetoverlappedResult()" << std::endl;
 			}
-			Socket->closeConnection();
+			
+			{
+				CCriticalSectionLock cs(CConnectionManager::getInst()->cs);
+				CConnectionManager::getInst()->closeConnection(Socket);
+			}
+			CCriticalSectionLock cs(cs);
+			CUserManager::getInst()->deleteUser(Socket);
 			delete Socket;
-			//Socket = NULL;
+			Socket = NULL;
 			continue;
 		}
 		switch (Socket->ioType)

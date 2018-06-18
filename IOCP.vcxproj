@@ -150,6 +150,7 @@
     <ClInclude Include="AcceptThread.h" />
     <ClInclude Include="Bomb.h" />
     <ClInclude Include="Connection.h" />
+    <ClInclude Include="ConnectionManager.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameRoom.h" />
     <ClInclude Include="GameUser.h" />
@@ -169,6 +170,7 @@
     <ClCompile Include="AcceptThread.cpp" />
     <ClCompile Include="Bomb.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="ConnectionManager.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameRoom.cpp" />
     <ClCompile Include="GameUser.cpp" />

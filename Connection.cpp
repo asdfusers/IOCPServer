@@ -13,23 +13,12 @@ CConnection::~CConnection()
 	
 }
 
-void CConnection::insertList(Socket* _socket)
+void CConnection::CloseSocket()
 {
-	socketList.push_back(_socket);
 }
 
-void CConnection::removeList(Socket* _socket)
+void CConnection::onDestroy()
 {
-	itr = socketList.begin();
-	while (itr != socketList.end())
-	{
-		if ((*itr)->m_socket == _socket->m_socket)
-		{
-			itr = socketList.erase(itr++);
-			break;
-		}
-		else
-			itr++;
-	}
+	this->CloseSocket();
+	delete this;
 }
-

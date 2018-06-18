@@ -25,9 +25,20 @@ void CUserManager::insertUser(Socket* client)
 	clientPool.insert(std::pair<SOCKET, Socket*>(client->m_socket , client));
 }
 
-void CUserManager::deleteUser(Socket client)
+void CUserManager::deleteUser(Socket* client)
 {
-	clientPool.erase(client.m_socket);
+	itr = clientPool.begin();
+	while (itr != clientPool.end())
+	{
+		if (itr->first == client->m_socket)
+		{
+			clientPool.erase(itr->first);
+			break;
+		}
+		else
+			itr++;
+	}
+
 }
 
 std::map<SOCKET, Socket*>::iterator CUserManager::findUser(SOCKET socket)

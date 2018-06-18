@@ -35,7 +35,6 @@ public:
 	std::string VIewUserStatuInformation(Socket* User);
 
 
-	void CopyConnection();
 private:
 	int retval;
 	SOCKET m_ListenSocket;

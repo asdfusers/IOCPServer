@@ -14,8 +14,9 @@ private:
 
 public:
 	void insertUser(Socket* client);
-	void deleteUser(Socket client);
+	void deleteUser(Socket* client);
 	std::map<SOCKET, Socket*>::iterator findUser(SOCKET socket);
+	
 
 public:
 	std::map<SOCKET, Socket*> clientPool;

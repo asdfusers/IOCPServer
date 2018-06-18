@@ -104,19 +104,14 @@ void CIOCPserver::UnInit()
 
 void CIOCPserver::Update()
 {	
-	if (!acceptThread.getConnection().getSocketList().empty())
+
+	for (auto socket : CUserManager::getInst()->clientPool)
 	{
-		CopyConnection();
-	}
-	
-	for (auto socket : socketList)
-	{
-			
-		if (!socket->getRecvQue().messageQue.empty())
+		if (!socket.second->getRecvQue().messageQue.empty())
 		{
-			CCriticalSectionLock cs(socket->Cric);
-			packetParsing(socket->getRecvQue().messageQue.front());
-			socket->getRecvQue().messageQue.pop();
+			CCriticalSectionLock cs(socket.second->Cric);
+			packetParsing(socket.second->getRecvQue().messageQue.front());
+			socket.second->getRecvQue().messageQue.pop();
 		}
 	}
 
@@ -454,11 +449,7 @@ void CIOCPserver::ChoiceLobbyOption(int iNum, SOCKET socket)
 	}
 }
 
-void CIOCPserver::CopyConnection()
-{
-	CCriticalSectionLock cs(acceptThread.cs);
-	socketList.assign(acceptThread.getConnection().getSocketList().begin(), acceptThread.getConnection().getSocketList().end());
-}
+
 
 std::string CIOCPserver::ViewUserInformation(Socket* User)
 {

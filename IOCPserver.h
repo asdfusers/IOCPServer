@@ -29,8 +29,9 @@ public:
 	void onPGameInputKey(CPacket & packet);
 
 	bool playerPositionSetting(std::string cInputKey, CPosition pos, CPacket & packet);
-	void DeleteUserPool(SOCKET socket);
-	void ChoiceLobbyOption(int iNum, SOCKET socket);
+	void MatchingCheck();
+	
+	void ChoiceLobbyOption(wchar_t iNum[2], SOCKET socket);
 	std::string ViewUserInformation(Socket* User);
 	std::string VIewUserStatuInformation(Socket* User);
 
@@ -40,10 +41,11 @@ private:
 	SOCKET m_ListenSocket;
 	HANDLE hcp, hThread;
 	CMessageQue sendMessageQue;
-
+	
 	CS::CriticalSection cs;
 
 private:
+	std::queue<Socket*> matchingQue;
 	std::list<Socket*> socketList;
 	CAcceptThread acceptThread;
 	WorkerThread workerThread[WorkerThreadCount];

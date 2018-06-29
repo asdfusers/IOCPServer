@@ -30,7 +30,7 @@ public:
 	int recvBytes;
 	int sendBytes;
 
-	char ID[10];
+	wchar_t ID[10];
 	int iLevel;
 	int iRoomNum;
 	int iTeam;

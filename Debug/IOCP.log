@@ -1,3 +1,5 @@
-﻿  WorkerThread.cpp
-  IOCP.vcxproj -> C:\Users\GC\Documents\Visual Studio 2015\Projects\IOCP\Debug\IOCP.exe
-  IOCP.vcxproj -> C:\Users\GC\Documents\Visual Studio 2015\Projects\IOCP\Debug\IOCP.pdb (Full PDB)
+﻿  IOCPserver.cpp
+c:\users\danawacomputer\documents\github\iocpserver\iocpserver.cpp(164): warning C4477: 'printf' : 서식 문자열 '%d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'wchar_t *'입니다.
+c:\users\danawacomputer\documents\github\iocpserver\iocpserver.cpp(516): warning C4715: 'CIOCPserver::VIewUserStatuInformation': 모든 제어 경로에서 값을 반환하지는 않습니다.
+  IOCP.vcxproj -> C:\Users\danawacomputer\Documents\GitHub\IOCPServer\Debug\IOCP.exe
+  IOCP.vcxproj -> C:\Users\danawacomputer\Documents\GitHub\IOCPServer\Debug\IOCP.pdb (Full PDB)

@@ -104,7 +104,10 @@ void CIOCPserver::UnInit()
 
 void CIOCPserver::Update()
 {	
-
+	if (matchingQue.size() > 1)
+	{
+		MatchingCheck();
+	}
 	for (auto socket : CUserManager::getInst()->clientPool)
 	{
 		if (!socket.second->getRecvQue().messageQue.empty())
@@ -117,10 +120,11 @@ void CIOCPserver::Update()
 
 	if (!sendMessageQue.messageQue.empty())
 	{
-		
-		sendMessage(sendMessageQue.messageQue.front());
-		sendMessageQue.messageQue.pop();
-
+		while (!sendMessageQue.messageQue.empty())
+		{
+			sendMessage(sendMessageQue.messageQue.front());
+			sendMessageQue.messageQue.pop();
+		}
 	}
 }
 
@@ -138,7 +142,7 @@ void CIOCPserver::onLoginPacket1Req(CPacket & packet)
 		Login log;
 		packet >> log;
 		std::cout << "ID : " << log.ID << "\t PASSWORD : " << log.password << std::endl;
-		strcpy(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->ID, log.ID);
+		wcscpy_s(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->ID, log.ID);
 
 		CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iLevel = 1;
 		CUserManager::getInst()->findUser(packet.getSocketNumber())->second->eStatus = Lobby;
@@ -148,52 +152,49 @@ void CIOCPserver::onLoginPacket1Req(CPacket & packet)
 	{
 		CPacket sendPacket(P_LOGINPACKET_ACK);
 		sendPacket.SetSocketNumber(packet.getSocketNumber());
-		sendPacket << L"여기는 로비입니다. \n1. 방 만들기\n2. 방 입장하기 ";
+		sendPacket << L"여기는 로비입니다. \n1. 방 입장하기 ";
 		sendMessageQue.messageQue.push(sendPacket);
 	}
 }
 
 void CIOCPserver::onPSelectLobbyOption(CPacket & packet)
 {
-	int iNumber;
+	wchar_t iNumber[2];
 	packet >> iNumber;
 	printf("%d\n", iNumber);
-	DeleteUserPool(packet.getSocketNumber());
 	ChoiceLobbyOption(iNumber, packet.getSocketNumber());
+	
+	wchar_t cInput[5];
+	CPosition pos;
+	packet >> cInput >> pos;
 
+	char* pStr;
+	int strSize = WideCharToMultiByte(CP_ACP, 0, iNumber, -1, NULL, 0, NULL, NULL);
+	pStr = new char[strSize];
+	WideCharToMultiByte(CP_ACP, 0, iNumber, -1, pStr, strSize, 0, 0);
 
-	switch (iNumber)
+	std::string asdf;
+	for (int i = 0; i < sizeof(pStr); i++)
+	{
+		asdf += pStr[i];
+	}
+
+	int num = atoi(asdf.c_str());
+	switch (num)
 	{
 	case 1:
 	{
-		std::string str = ViewUserInformation(CUserManager::getInst()->findUser(packet.getSocketNumber())->second);
-		CPacket sendPacket(P_ENTERROOM_ACK);
+		CPacket sendPacket(P_MATCHING_ACK);
 		sendPacket.SetSocketNumber(packet.getSocketNumber());
-		sendPacket << str;
+		sendPacket << L"************************* 랜덤 매칭중 *************************";
 		sendMessageQue.messageQue.push(sendPacket);
 	}
 	break;
-	case 2:
-	{
-		std::string str = "********************* 방 리스트 *********************\n";
-
-		for (auto &RoomList : CRoomManager::getinst()->getRoomPool())
-		{
-			str += std::to_string(RoomList.GetRoomNumber());
-			str += "\n";
-		}
-		CPacket sendPacket(P_LOBBYOPTION_ACK);
-		sendPacket.SetSocketNumber(packet.getSocketNumber());
-		sendPacket << str;
-		sendMessageQue.messageQue.push(sendPacket);
-	}
-	break;
-
 	default:
 	{
 		CPacket sendPacket(P_LOGINPACKET_ACK);
 		sendPacket.SetSocketNumber(packet.getSocketNumber());
-		sendPacket << L"여기는 로비입니다. \n1. 방 만들기\n2. 방 입장하기 ";
+		sendPacket << L"여기는 로비입니다. \n1. 방 입장하기 ";
 		sendMessageQue.messageQue.push(sendPacket);
 	}
 	break;
@@ -211,7 +212,7 @@ void CIOCPserver::onPPlayerEnterRoom(CPacket & packet)
 		{
 			CPacket sendPacket(P_LOGINPACKET_ACK);
 			sendPacket.SetSocketNumber(packet.getSocketNumber());
-			sendPacket << L"여기는 로비입니다. \n1. 방 만들기\n2. 방 입장하기 ";
+			sendPacket << L"여기는 로비입니다. \n1. 방 입장하기\n";
 			sendMessageQue.messageQue.push(sendPacket);
 			return;
 		}
@@ -225,7 +226,7 @@ void CIOCPserver::onPPlayerEnterRoom(CPacket & packet)
 					{
 						CPacket sendPacket(P_LOGINPACKET_ACK);
 						sendPacket.SetSocketNumber(packet.getSocketNumber());
-						sendPacket << L"여기는 로비입니다. \n1. 방 만들기\n2. 방 입장하기 ";
+						sendPacket << L"여기는 로비입니다. \n1. 방 입장하기\n";
 						sendMessageQue.messageQue.push(sendPacket);
 						return;
 					}
@@ -236,13 +237,12 @@ void CIOCPserver::onPPlayerEnterRoom(CPacket & packet)
 				{
 					CPacket sendPacket(P_LOGINPACKET_ACK);
 					sendPacket.SetSocketNumber(packet.getSocketNumber());
-					sendPacket << L"여기는 로비입니다. \n1. 방 만들기\n2. 방 입장하기 ";
+					sendPacket << L"여기는 로비입니다. \n1. 방 입장하기\n";
 					sendMessageQue.messageQue.push(sendPacket);
 					return;
 				}
 			}
 
-			DeleteUserPool(packet.getSocketNumber());
 			CUserManager::getInst()->findUser(packet.getSocketNumber())->second->eStatus = InRoom;
 			CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum = iInput;
 			CRoomManager::getinst()->findRoom(iInput)->insertUserPool(CUserManager::getInst()->findUser(packet.getSocketNumber())->second);
@@ -309,7 +309,7 @@ void CIOCPserver::onPReadyResult(CPacket & packet)
 
 void CIOCPserver::onPGameStartReady(CPacket & packet)
 {
-	for (auto &player : CRoomManager::getinst()->findRoom(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum)->getPool())
+	/*for (auto &player : CRoomManager::getinst()->findRoom(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum)->getPool())
 	{
 		if (player.second->eStatus == Ready)
 		{
@@ -329,7 +329,7 @@ void CIOCPserver::onPGameStartReady(CPacket & packet)
 
 		}
 		CRoomManager::getinst()->findRoom(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum)->GameStart();
-	}
+	}*/
 }
 
 void CIOCPserver::onPGameStart(CPacket & packet)
@@ -378,7 +378,6 @@ void CIOCPserver::onPGameInputKey(CPacket & packet)
 		}
 
 		else {
-
 			CPacket sendPacket(P_ENEMYPOS_ACK);
 			sendPacket.SetSocketNumber(player.first);
 			sendPacket << bAbleCheck << cInput;
@@ -398,7 +397,7 @@ bool CIOCPserver::playerPositionSetting(std::string cInputKey, CPosition pos, CP
 		CRoomManager::getinst()->findRoom(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum)->getStage()->m_Player[0].SetRoomNumber(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum);
 		bAbleMove = CRoomManager::getinst()->findRoom(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum)->getStage()->CheckMove(CRoomManager::getinst()->findRoom(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum)->getStage()->m_Stage, CRoomManager::getinst()->findRoom(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum)->getStage()->m_Player[0], inputKey);
 	}
-	else if (CUserManager::getInst()->findUser(packet.getSocketNumber())->second->m_socket== 2)
+	else if (CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iTeam == 2)
 	{
 		CRoomManager::getinst()->findRoom(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum)->getStage()->m_Player[1].SetPlayerpos(pos.x, pos.y);
 		CRoomManager::getinst()->findRoom(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum)->getStage()->m_Player[1].SetRoomNumber(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iRoomNum);
@@ -410,39 +409,69 @@ bool CIOCPserver::playerPositionSetting(std::string cInputKey, CPosition pos, CP
 	return bAbleMove;
 }
 
-void CIOCPserver::DeleteUserPool(SOCKET socket)
+void CIOCPserver::MatchingCheck()
 {
-	int num = CUserManager::getInst()->clientPool.find(socket)->second->eStatus;
-	switch (num)
+	if (matchingQue.size() % 2 == 0 )
 	{
-	case 1:
+		
+		CGameRoom GameRoom;
+		CRoomManager::getinst()->insertRoom(GameRoom);
+		CRoomManager::getinst()->findRoom(GameRoom.GetRoomNumber())->insertUserPool(CUserManager::getInst()->findUser(matchingQue.front()->m_socket)->second);
+		CUserManager::getInst()->findUser(matchingQue.front()->m_socket)->second->eStatus = GameStart;
+		CUserManager::getInst()->findUser(matchingQue.front()->m_socket)->second->iTeam = 1;	
+		matchingQue.pop();
 
+		CRoomManager::getinst()->findRoom(GameRoom.GetRoomNumber())->insertUserPool(CUserManager::getInst()->findUser(matchingQue.front()->m_socket)->second);
+		CUserManager::getInst()->findUser(matchingQue.front()->m_socket)->second->eStatus = GameStart;
+		CUserManager::getInst()->findUser(matchingQue.front()->m_socket)->second->iTeam = 2;
+		matchingQue.pop();
 
-		break;
-	case 2:
-		break;
-
+		for(auto user : CRoomManager::getinst()->findRoom(GameRoom.GetRoomNumber())->getPool())
+		{ 
+			if (user.second->iTeam == 1)
+			{
+				CPacket sendPacket(P_GAMESTART_ACK);
+				sendPacket.SetSocketNumber(user.second->m_socket);
+				sendPacket << 1;
+				sendMessageQue.messageQue.push(sendPacket);
+			}
+			else
+			{
+				CPacket sendPacket(P_GAMESTART_ACK);
+				sendPacket.SetSocketNumber(user.second->m_socket);
+				sendPacket << 2;
+				sendMessageQue.messageQue.push(sendPacket);
+			}
+		
+		}
+		CRoomManager::getinst()->findRoom(GameRoom.GetRoomNumber())->GameStart();
 	}
 }
 
-void CIOCPserver::ChoiceLobbyOption(int iNum, SOCKET socket)
+void CIOCPserver::ChoiceLobbyOption(wchar_t iNum[2], SOCKET socket)
 {
-	switch (iNum)
+	char* pStr;
+	int strSize = WideCharToMultiByte(CP_ACP, 0, iNum, -1, NULL, 0, NULL, NULL);
+	pStr = new char[strSize];
+	WideCharToMultiByte(CP_ACP, 0, iNum, -1, pStr, strSize, 0, 0);
+
+	std::string asdf;
+	for (int i = 0; i < sizeof(pStr); i++)
+	{
+		asdf += pStr[i];
+	}
+
+	int num = atoi(asdf.c_str());
+	switch (num)
 	{
 	case 1:
 	{
-		CGameRoom GameRoom;
+		/*CGameRoom GameRoom;
 		CRoomManager::getinst()->insertRoom(GameRoom);
-		CRoomManager::getinst()->findRoom(GameRoom.GetRoomNumber())->insertUserPool(CUserManager::getInst()->findUser(socket)->second);
+		CRoomManager::getinst()->findRoom(GameRoom.GetRoomNumber())->insertUserPool(CUserManager::getInst()->findUser(socket)->second);*/
+		matchingQue.push(CUserManager::getInst()->findUser(socket)->second);
 		CUserManager::getInst()->findUser(socket)->second->eStatus = InRoom;
 		CUserManager::getInst()->findUser(socket)->second->iTeam = 1;
-
-	}
-	break;
-	case 2:
-	{
-		CUserManager::getInst()->findUser(socket)->second->eStatus = InRoom;
-		CUserManager::getInst()->findUser(socket)->second->iTeam = 2;
 
 	}
 	break;
@@ -458,7 +487,7 @@ std::string CIOCPserver::ViewUserInformation(Socket* User)
 	for (auto player : CRoomManager::getinst()->findRoom(User->iRoomNum)->getPool())
 	{
 		temp += "유저 아이디 : ";
-		temp += player.second->ID;
+		temp += (char*)player.second->ID;
 		temp += "\t";
 		temp += "유저 레벨 : ";
 		temp += std::to_string(player.second->iLevel);

@@ -14,9 +14,10 @@ void CConnectionManager::closeConnection(Socket* socket)
 	CConnection* item = *itr;
 	while (itr != connectionList.end())
 	{
+		item = *itr;
 		if (item->m_Socket == socket)
 			break;
-		itr++;
+		item++;
 	}
 	item->onDestroy();
 //	delete item;

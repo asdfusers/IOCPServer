@@ -156,6 +156,7 @@
     <ClInclude Include="GameUser.h" />
     <ClInclude Include="IOCPserver.h" />
     <ClInclude Include="Lobby.h" />
+    <ClInclude Include="ODBC.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="RoomManager.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="IOCP.cpp" />
     <ClCompile Include="IOCPserver.cpp" />
     <ClCompile Include="Lobby.cpp" />
+    <ClCompile Include="ODBC.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="RoomManager.cpp" />
     <ClCompile Include="Socket.cpp" />

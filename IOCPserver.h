@@ -3,6 +3,7 @@
 #include "WorkerThread.h"
 #include "Socket.h"
 #include "Connection.h"
+#include "ODBC.h"
 class CIOCPserver
 {
 public:
@@ -41,9 +42,8 @@ private:
 	SOCKET m_ListenSocket;
 	HANDLE hcp, hThread;
 	CMessageQue sendMessageQue;
-	
 	CS::CriticalSection cs;
-
+	CODBC odbc;
 private:
 	std::queue<Socket*> matchingQue;
 	std::list<Socket*> socketList;

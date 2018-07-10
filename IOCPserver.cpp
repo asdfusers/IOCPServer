@@ -4,6 +4,7 @@
 #include "RoomManager.h"
 #include "GameRoom.h"
 #include "Lobby.h"
+#include "ODBC.h"
 CIOCPserver::CIOCPserver() : m_ListenSocket(INVALID_SOCKET)
 {
 
@@ -89,6 +90,9 @@ bool CIOCPserver::Init(int PORT)
 	}
 	XTrace(L"%d", hcp);
 	AcceptThreadInit();
+
+	odbc.AllocateHandles();
+	odbc.ConnectDataSource();
 	return true;
 	
 }
@@ -142,6 +146,13 @@ void CIOCPserver::onLoginPacket1Req(CPacket & packet)
 		Login log;
 		packet >> log;
 		std::cout << "ID : " << log.ID << "\t PASSWORD : " << log.password << std::endl;
+		char sqlString[400];
+		wchar_t wsql[500];
+
+		sprintf(sqlString, "INSERT INTO users(name, win, lose) values ('%ws', 0, 0)", log.ID);
+		MultiByteToWideChar(CP_UTF8, 0, sqlString, strlen(sqlString), wsql, sizeof wsql / sizeof *wsql);
+		wsql[strlen(sqlString)] = '\0';
+		odbc.ExecuteStatementDirect(wsql);
 		wcscpy_s(CUserManager::getInst()->findUser(packet.getSocketNumber())->second->ID, log.ID);
 
 		CUserManager::getInst()->findUser(packet.getSocketNumber())->second->iLevel = 1;
@@ -385,7 +396,7 @@ void CIOCPserver::onPGameInputKey(CPacket & packet)
 
 		}
 	}
-}
+};
 
 bool CIOCPserver::playerPositionSetting(std::string cInputKey, CPosition pos, CPacket & packet)
 {
